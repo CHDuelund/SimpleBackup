@@ -5,6 +5,8 @@ import os  # modul som giver mulighed for administration af mapper, fx. skift af
 import sys  # modul som bla. giver mulighed for udlæsning og evt. logning af in- og output direkte fra interpreteren.
 from pick import pick
 from termcolor import colored
+import colorama
+colorama.init()
 from datetime import date  # funktionen date importeres fra datetime modulet, til angivelse af dato ved backupkørsler.
 
 
@@ -22,8 +24,11 @@ from datetime import date  # funktionen date importeres fra datetime modulet, ti
 
 # HOVEDMENU
 
-print(colored("Simple Backup by CHDuelund v1.0a", "blue", attrs=["bold", "underline"]))
-title = "Please choose your favorite programming language: "
-options = ["Java", "JavaScript", "Python", "PHP", "C++", "Erlang", "Haskell"]
-option, index = pick(options, title, indicator="=>", default_index=2)
-print(f"You choosed {option} at index {index}")
+colored_title = colored("Simple Backup by CHDuelund v1.0a", "blue", attrs=["bold", "underline"])
+title = colored_title + "Vælg venligst backup type: "
+print(colored_title)
+
+wait = input()
+# options = ["Full Backup", "Differential Backup", "Incremental Backup"]
+# option, index = pick(options, title, indicator="=>", default_index=0)
+# print(f"You choosed {option} at index {index}")
