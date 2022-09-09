@@ -7,16 +7,22 @@ from termcolor import colored
 from datetime import date  # funktionen date importeres fra datetime modulet, til angivelse af dato ved backupkørsler.
 
 
+# GLOBALE VARIABLER
+
+get_today = date.today()
+today = get_today.strftime("%d_%m_%Y_")
+
+
 # DEFINERING AF FUNKTIONER
 
 def Main_Menu():
-    print(colored("Simple Backup by CHDuelund v1.0a \n", "blue", attrs=["bold", "underline"]))
+    print(colored("Simple Backup by CHDuelund v1.0a\n", "blue", attrs=["bold", "underline"]))
 
-    print(colored("Vælg funktion:", attrs=["underline"]))
-    print("1 = Full Backup \n2 = Differential Backup \n3 = Incremental Backup \n")
+    print(colored("Choose function:", attrs=["underline"]))
+    print("1 = Full Backup\n2 = Differential Backup\n3 = Incremental Backup\n")
 
     while (True):
-        function = input("Indtast dit valg: ")
+        function = input("Enter your choice: ")
         if function == "1":
             Full_Backup()
             break
@@ -27,16 +33,17 @@ def Main_Menu():
             Incremental_Backup()
             break
         else:
-            print(colored("Ugyldigt input - prøv igen... \n", "red"))
+            print(colored("Invalid input - please try again...\n", "red"))
 
 def Full_Backup():
-    print("Kører Full Backup")
+    print(colored("\nFull Backup\n", "blue", attrs=["bold", "underline"]))
+    source_path = input("Specify the source path: ")
 
 def Differential_Backup():
-    print("Kører Differential Backup")
+    print("Running Differential Backup")
 
 def Incremental_Backup():
-    print("Kører Incremental Backup")
+    print("Running Incremental Backup")
 
 
 # HOVEDMENU
