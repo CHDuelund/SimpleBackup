@@ -6,6 +6,7 @@ import sys  # modul som giver mulighed for udlæsning og evt. logning af in- og 
 from termcolor import colored # modul som gør det muligt at formatere tekst med farve og type.
 import re # modul som gør det muligt at splitte en string ved brug af regex.
 from datetime import date,datetime  # funktionen date importeres fra datetime modulet, til angivelse af dato ved backupkørsler.
+import csv
 
 
 # GLOBALE VARIABLER
@@ -61,11 +62,17 @@ def Full_Backup():
         if destination_path[-1] != "\\":
             destination_path = destination_path + "\\" # tilføjer en \ til enden af den angivne sti, hvis den mangler.
         folder_exists = os.path.exists(destination_path)  # kontrollerer om den angivne sti findes.
+
         if folder_exists == True:
             get_time = datetime.now()  # hent tid til variabel.
             time_stamp = get_time.strftime("_%H_%M_%S")  # konverter tid til ønsket format.
 
             shutil.copytree(source_path, destination_path + folder_name[-1] + "_full" + date_stamp + time_stamp)
+
+            log_data = [source_path, destination_path, folder_name[-1] + "_full" + date_stamp + time_stamp]
+            with open('backup_log.csv', 'a', encoding='UTF8') as f:
+                writer = csv.writer(f)
+                writer.writerow(log_data)
 
             print("Backup done!\n")
 
