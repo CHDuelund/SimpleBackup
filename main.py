@@ -7,6 +7,7 @@ from termcolor import colored # modul som gør det muligt at formatere tekst med
 import re # modul som gør det muligt at splitte en string ved brug af regex.
 from datetime import date,datetime  # funktionen date importeres fra datetime modulet, til angivelse af dato ved backupkørsler.
 import csv
+from filecmp import dircmp
 
 
 # GLOBALE VARIABLER
@@ -97,8 +98,36 @@ def Clear_Console():
 
 
 def Differential_Backup():
-    print("Running Differential Backup")
+    print(colored("\nDifferential Backup\n", "blue", attrs=["bold", "underline"]))
 
+    while (True):
+        source_path = input("Specify the source path: ")
+        folder_exists = os.path.exists(source_path)  # kontrollerer om den angivne sti findes.
+        folder_name = re.split(r'\\',source_path)  # deler variablen source_path op ved brug af regex med \ som "delimiter".
+        if folder_exists == True:
+            break
+        else:
+            print(colored("The path does not exist - please try again...\n", "red"))
+
+    while (True):
+        destination_path = input("Specify the destination path: ")
+        if destination_path[-1] != "\\":
+            destination_path = destination_path + "\\"  # tilføjer en \ til enden af den angivne sti, hvis den mangler.
+        folder_exists = os.path.exists(destination_path)  # kontrollerer om den angivne sti findes.
+
+        if folder_exists == True:
+            get_time = datetime.now()  # hent tid til variabel.
+            time_stamp = get_time.strftime("_%H_%M_%S")  # konverter tid til ønsket format.
+
+            compare = dircmp(source_path, destination_path)
+
+            def Compare_Files(dcmp):
+                for name in dcmp.diff_files:
+                    print("diff_file %s found in %s and %s" % (name, dcmp.left, dcmp.right))
+                for sub_dcmp in dcmp.subdirs.values():
+                    Compare_Files(sub_dcmp)
+
+            Compare_Files(compare)
 
 def Incremental_Backup():
     print("Running Incremental Backup")
