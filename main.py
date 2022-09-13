@@ -7,7 +7,7 @@ from termcolor import colored # modul som gør det muligt at formatere tekst med
 import re # modul som gør det muligt at splitte en string ved brug af regex.
 from datetime import date,datetime  # funktionen date importeres fra datetime modulet, til angivelse af dato ved backupkørsler.
 import csv
-import filecmp
+from difflib import SequenceMatcher
 
 
 # GLOBALE VARIABLER
@@ -64,13 +64,13 @@ def Full_Backup():
         if folder_exists == True:
             get_time = datetime.now()  # hent tid til variabel.
             time_stamp = get_time.strftime("_%H_%M_%S")  # konverter tid til ønsket format.
-            time_now = get_time.strftime("%H:%M:%S")
+            time_now = get_time.strftime("_%H:%M:%S")
 
             new_folder_path = destination_path + folder_name[-1] + "_full" + date_stamp + time_stamp
 
             shutil.copytree(source_path, new_folder_path)
 
-            log_data = [source_path, destination_path, folder_name[-1] + "_full" + date_stamp + time_stamp, "full", date_today, time_now]
+            log_data = [source_path, destination_path + folder_name[-1] + "_full" + date_stamp + time_stamp, "full", date_today + time_now]
             with open('backup_log.csv', 'a', encoding='UTF8') as f:
                 writer = csv.writer(f)
                 writer.writerow(log_data)
@@ -118,24 +118,76 @@ def Differential_Backup():
         if folder_exists == True:
             get_time = datetime.now()  # hent tid til variabel.
             time_stamp = get_time.strftime("_%H_%M_%S")  # konverter tid til ønsket format.
+            time_now = get_time.strftime("_%H:%M:%S")
 
-            new_folder_path = destination_path + folder_name[-1] + "_full" + date_stamp + time_stamp
+            new_folder_path = destination_path + folder_name[-1] + "_diff" + date_stamp + time_stamp
+            latest_full = Latest_Full()
 
-            get_time.strftime("_%H_%M_%S")
+            # define your two folders, full paths
+            first_path = os.path.abspath(r"C:\Users\XYZ\Desktop\testfolder\a")
+            second_path = os.path.abspath(r"C:\Users\XYZ\Desktop\testfolder\b")
 
-            get_latest_full = Latest_Full() # find seneste full backup kørsel via funktionen Latest_Backup.
+            # get files from folder
+            first_path_files = os.listdir(first_path)
+            second_path_files = os.listdir(second_path)
 
-            def folder_diff():
-                folder1 = os.listdir(get_latest_full)  # folder containing your files
-                folder2 = os.listdir(source_path)  # the other folder
+            # join path and filenames
+            first_folder = [os.path.join(first_path, f) for f in first_path_files]
+            second_folder = [os.path.join(second_path, f) for f in second_path_files]
 
-                for item1 in folder1:
-                    for item2 in folder2:
-                        if (item1 == item2):
-                            res = filecmp.cmp(source_path + item1, get_latest_full + item2)
+            # empty list for matching results
+            matched_files = []
 
-            data = folder_diff()
-            print(data)
+            # iterate over the files in the first folder
+            for file_one in first_folder:
+                # read file content
+                with open(file_one, "r") as f:
+                    file_one_text = f.read()
+
+                # iterate over the files in the second folder
+                for file_two in second_folder:
+                    # read file content
+                    with open(file_two, "r") as f:
+                        file_two_text = f.read()
+
+                    # match the two file contents
+                    match = SequenceMatcher(None, file_one_text, file_two_text)
+                    if match.ratio() < 1.0:
+                        print(f"Match found ({match.ratio()}): '{file_one}' | '{file_two}'")
+                        # here you have to decide if you rather want to remove files from the first or second folder
+                        matched_files.append(file_two)  # i delete files from the second folder
+
+            # remove duplicates from the resulted list
+            matched_files = list(set(matched_files))
+
+            # remove the files
+            for f in matched_files:
+                print(f"Removing file: {f}")
+                os.remove(f)
+
+            log_data = [source_path, destination_path + folder_name[-1] + "_diff" + date_stamp + time_stamp, "differential", date_today + time_now]
+            with open('backup_log.csv', 'a', encoding='UTF8') as f:
+                writer = csv.writer(f)
+                writer.writerow(log_data)
+
+            print("Backup done!\n")
+
+            while (True):
+                return_main_menu = input("Return to main menu? (y/n): ")
+                if return_main_menu == "y":
+                    Clear_Console()
+                    break
+                elif return_main_menu == "n":
+                    exit()
+                else:
+                    print(colored("Invalid input - please try again...\n", "red"))
+
+            break
+
+        else:
+            print(colored("The path does not exist - please try again...\n", "red"))
+
+
 
 def Incremental_Backup():
     print("Running Incremental Backup")

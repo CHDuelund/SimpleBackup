@@ -1,1 +1,5 @@
-src-path,bck-path,type,date-timec:\temp\test\src,c:\temp\test\dst\src_full_12_09_2022_20_41_17,full,12-09-2022_20:41:17c:\temp\test\src,c:\temp\test\dst\src_full_12_09_2022_20_46_26,full,12-09-2022_20:46:26c:\temp\test\src,c:\temp\test\dst\src_full_12_09_2022_20_50_05,full,12-09-2022_20:50:05
+src-path,bck-path,type,date-timec:\temp\test\source,c:\temp\test\destination\source_full_13_09_2022_11_52_16,full,13-09-2022_11:52:16
+c:\temp\test\source,c:\temp\test\destination\source_full_13_09_2022_12_08_18,full,13-09-2022_12:08:18
+c:\temp\test\source,c:\temp\test\destination\source_full_13_09_2022_13_44_11,full,13-09-2022_13:44:11
+c:\temp\test\source,c:\temp\test\destination\source_diff_13_09_2022_14_14_48,differential,13-09-2022_14:14:48
+c:\temp\test\source,c:\temp\test\destination\source_diff_13_09_2022_14_16_18,differential,13-09-2022_14:16:18
