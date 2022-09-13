@@ -124,8 +124,8 @@ def Differential_Backup():
             latest_full = Latest_Full()
 
             # define your two folders, full paths
-            first_path = os.path.abspath(r"C:\Users\XYZ\Desktop\testfolder\a")
-            second_path = os.path.abspath(r"C:\Users\XYZ\Desktop\testfolder\b")
+            first_path = os.path.abspath(source_path)
+            second_path = os.path.abspath(latest_full)
 
             # get files from folder
             first_path_files = os.listdir(first_path)
@@ -163,7 +163,7 @@ def Differential_Backup():
             # remove the files
             for f in matched_files:
                 print(f"Removing file: {f}")
-                os.remove(f)
+                #os.remove(f)
 
             log_data = [source_path, destination_path + folder_name[-1] + "_diff" + date_stamp + time_stamp, "differential", date_today + time_now]
             with open('backup_log.csv', 'a', encoding='UTF8') as f:
