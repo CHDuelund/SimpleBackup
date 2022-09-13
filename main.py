@@ -8,6 +8,7 @@ import re # modul som gør det muligt at splitte en string ved brug af regex.
 from datetime import date,datetime  # funktionen date importeres fra datetime modulet, til angivelse af dato ved backupkørsler.
 import csv
 from difflib import SequenceMatcher
+import ntpath
 
 
 # GLOBALE VARIABLER
@@ -120,7 +121,7 @@ def Differential_Backup():
             time_stamp = get_time.strftime("_%H_%M_%S")  # konverter tid til ønsket format.
             time_now = get_time.strftime("_%H:%M:%S")
 
-            new_folder_path = destination_path + folder_name[-1] + "_diff" + date_stamp + time_stamp
+            new_folder_path = destination_path + folder_name[-1] + "_diff" + date_stamp + time_stamp + "\\"
             latest_full = Latest_Full()
 
             # define your two folders, full paths
@@ -155,15 +156,17 @@ def Differential_Backup():
                     if match.ratio() < 1.0:
                         print(f"Match found ({match.ratio()}): '{file_one}' | '{file_two}'")
                         # here you have to decide if you rather want to remove files from the first or second folder
-                        matched_files.append(file_two)  # i delete files from the second folder
+                        matched_files.append(file_one)  # i delete files from the second folder
 
             # remove duplicates from the resulted list
             matched_files = list(set(matched_files))
 
             # remove the files
             for f in matched_files:
-                print(f"Removing file: {f}")
-                #os.remove(f)
+                print("Copying " + f + " to " + new_folder_path)
+                file = ntpath.basename(f)
+                os.makedirs(new_folder_path, exist_ok=True)
+                shutil.copy2(f, new_folder_path + file)
 
             log_data = [source_path, destination_path + folder_name[-1] + "_diff" + date_stamp + time_stamp, "differential", date_today + time_now]
             with open('backup_log.csv', 'a', encoding='UTF8') as f:
