@@ -27,3 +27,4 @@ for dir2 in glob.glob(folder2 + "\\**\\*", recursive=True):
 
 if len(os.listdir(folder2)) == 0:
     shutil.rmtree(folder2)
+    print("No files were backed up.")
