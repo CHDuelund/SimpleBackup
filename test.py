@@ -2,7 +2,7 @@ import os, shutil, re
 from difflib import SequenceMatcher
 
 source = "c:\\temp\\test\\src"
-destination = "C:\\Temp\\Test\\dst\\src_full_14_09_2022_14_38_25"
+destination = "C:\\Temp\\Test\\dst\\src_full_14_09_2022_17_23_31"
 backup = "C:\\Temp\\Test\\dst\\test5\\"
 
 files_source = []
@@ -43,9 +43,11 @@ for file_one in files_source:
 #root_folder_name = split_source_path[-1]
 
 for src_file in matched_files:
-    split_source_path = re.split(r'\\', src_file)
-    file_path = split_source_path[:-1]
-    print(file_path)
+    print(src_file)
+    #print(os.path.split(src_file))
+    #split_source_path = re.split(r'\\', src_file)
+    #file_path = split_source_path[:-1]
+    #print(file_path)
     #file_path = src_file.split(root_folder_name,1)
     #print(file_path[0])
     #shutil.copytree(src_file, backup)
