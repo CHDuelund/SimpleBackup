@@ -2,7 +2,7 @@ import os, shutil, re
 from difflib import SequenceMatcher
 
 source = "c:\\temp\\test\\src"
-destination = "C:\\Temp\\Test\\dst\\src_full_14_09_2022_17_23_31"
+destination = "C:\Temp\Test\dst\src_full_14_09_2022_14_38_25"
 backup = "C:\\Temp\\Test\\dst\\test5\\"
 
 files_source = []
