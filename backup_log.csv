@@ -19,3 +19,6 @@ c:\temp\test\source,c:\temp\test\destination\source_full_14_09_2022_10_38_37,ful
 c:\temp\test\source,c:\temp\test\destination\source_diff_14_09_2022_10_39_20,differential,14-09-2022_10:39:20
 c:\temp\test\source,c:\temp\test\destination\source_diff_14_09_2022_10_40_34,differential,14-09-2022_10:40:34
 c:\temp\test\source,c:\temp\test\destination\source_diff_14_09_2022_10_54_15,differential,14-09-2022_10:54:15
+c:\temp\test\src,c:\temp\test\dst\src_full_14_09_2022_14_38_25,full,14-09-2022_14:38:25
+c:\temp\test\src,c:\temp\test\dst\src_diff_14_09_2022_14_38_55,differential,14-09-2022_14:38:55
+c:\temp\test\src,c:\temp\test\dst\src_diff_14_09_2022_14_40_48,differential,14-09-2022_14:40:48
