@@ -141,20 +141,21 @@ def Differential_Backup():
 
             # iterate over the files in the first folder
             for file_one in first_folder:
-                # read file content
-                with open(file_one, "r") as f:
-                    file_one_text = f.read()
+                print(file_one)
+                if os.path.isfile(file_one):
+                    with open(file_one, "r") as f:
+                        file_one_text = f.read()
 
                 # iterate over the files in the second folder
-                for file_two in second_folder:
-                    # read file content
-                    with open(file_two, "r") as f:
-                        file_two_text = f.read()
+                    for file_two in second_folder:
+                        if os.path.isfile(file_two):
+                            with open(file_two, "r") as f:
+                                file_two_text = f.read()
 
                     # match the two file contents
                     match = SequenceMatcher(None, file_one_text, file_two_text)
                     if match.ratio() < 1.0:
-                        print(f"Match found ({match.ratio()}): '{file_one}' | '{file_two}'")
+                        print(f"Changes found ({match.ratio()}): '{file_one}' | '{file_two}'")
                         # here you have to decide if you rather want to remove files from the first or second folder
                         matched_files.append(file_one)  # i delete files from the second folder
 
