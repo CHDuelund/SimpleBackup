@@ -1,14 +1,8 @@
 # IMPORTERING AF PAKKER
 
-import shutil  # modul som gør det muligt at flytte, kopiere og slette filer.
-import os  # modul som giver mulighed for administration af mapper, fx. skift af CWD samt oprettelse/sletning af mapper.
-import sys  # modul som giver mulighed for udlæsning og evt. logning af in- og output direkte fra interpreteren.
-from termcolor import colored # modul som gør det muligt at formatere tekst med farve og type.
-import re # modul som gør det muligt at splitte en string ved brug af regex.
-from datetime import date,datetime  # funktionen date importeres fra datetime modulet, til angivelse af dato ved backupkørsler.
-import csv
-from difflib import SequenceMatcher
-import ntpath
+import os, shutil, re, glob, filecmp, csv
+from termcolor import colored
+from datetime import date,datetime
 
 
 # GLOBALE VARIABLER
@@ -16,6 +10,7 @@ import ntpath
 get_today = date.today() # hent dato til variabel.
 date_today = get_today.strftime("%d-%m-%Y")
 date_stamp = get_today.strftime("_%d_%m_%Y") # konverter dato til ønsket format.
+source_path = ""
 
 
 # DEFINERING AF FUNKTIONER
@@ -24,7 +19,7 @@ def Main_Menu():
     print(colored("Simple Backup by CHDuelund v1.0a\n", "blue", attrs=["bold", "underline"]))
 
     print(colored("Choose function:", attrs=["underline"]))
-    print("1 = Full Backup\n2 = Differential Backup\n3 = Incremental Backup\n")
+    print("1 = Full Backup\n2 = Differential Backup\n3 = Exit\n")
 
     while (True):
         function = input("Enter your choice: ")
@@ -38,8 +33,7 @@ def Main_Menu():
             break
         elif function == "3":
             Clear_Console()
-            Incremental_Backup()
-            break
+            exit()
         else:
             print(colored("Invalid input - please try again...\n", "red"))
 
@@ -76,7 +70,7 @@ def Full_Backup():
                 writer = csv.writer(f)
                 writer.writerow(log_data)
 
-            print("Backup done!\n")
+            print(colored("\nBackup done!\n", "green"))
 
             while(True):
                 return_main_menu = input("Return to main menu? (y/n): ")
@@ -84,6 +78,7 @@ def Full_Backup():
                     Clear_Console()
                     break
                 elif return_main_menu =="n":
+                    Clear_Console()
                     exit()
                 else:
                     print(colored("Invalid input - please try again...\n", "red"))
@@ -92,109 +87,106 @@ def Full_Backup():
 
         else:
             print(colored("The path does not exist - please try again...\n", "red"))
-
-
-def Clear_Console():
-    os.system('cls' if os.name == 'nt' else 'clear')
 
 
 def Differential_Backup():
     print(colored("\nDifferential Backup\n", "blue", attrs=["bold", "underline"]))
 
     while (True):
+        global source_path
         source_path = input("Specify the source path: ")
         folder_exists = os.path.exists(source_path)  # kontrollerer om den angivne sti findes.
         folder_name = re.split(r'\\',source_path)  # deler variablen source_path op ved brug af regex med \ som "delimiter".
         if folder_exists == True:
+
             break
         else:
             print(colored("The path does not exist - please try again...\n", "red"))
 
-    while (True):
-        destination_path = input("Specify the destination path: ")
-        if destination_path[-1] != "\\":
-            destination_path = destination_path + "\\"  # tilføjer en \ til enden af den angivne sti, hvis den mangler.
-        folder_exists = os.path.exists(destination_path)  # kontrollerer om den angivne sti findes.
+    full_backup_exists = 0
+    with open('backup_log.csv') as csv_file:
+        for data in csv.DictReader(csv_file):
+            if data['type'] == "full" and data['src-path'] == source_path:
+                full_backup_exists = 1
+                break
 
-        if folder_exists == True:
-            get_time = datetime.now()  # hent tid til variabel.
-            time_stamp = get_time.strftime("_%H_%M_%S")  # konverter tid til ønsket format.
-            time_now = get_time.strftime("_%H:%M:%S")
+    if full_backup_exists == 1:
+        while (True):
+            destination_path = input("Specify the destination path: ")
+            folder_exists = os.path.exists(destination_path)  # kontrollerer om den angivne sti findes.
 
-            new_folder_path = destination_path + folder_name[-1] + "_diff" + date_stamp + time_stamp + "\\"
-            latest_full = Latest_Full()
+            if folder_exists == True:
+                get_time = datetime.now()  # hent tid til variabel.
+                time_stamp = get_time.strftime("_%H_%M_%S")  # konverter tid til ønsket format.
+                time_now = get_time.strftime("_%H:%M:%S")
 
-            # define your two folders, full paths
-            first_path = os.path.abspath(source_path)
-            second_path = os.path.abspath(latest_full)
+                backup_folder_path = destination_path + "\\" + folder_name[-1] + "_diff" + date_stamp + time_stamp
 
-            # get files from folder
-            first_path_files = os.listdir(first_path)
-            second_path_files = os.listdir(second_path)
+                latest_full = Latest_Full()
 
-            # join path and filenames
-            first_folder = [os.path.join(first_path, f) for f in first_path_files]
-            second_folder = [os.path.join(second_path, f) for f in second_path_files]
+                os.mkdir(backup_folder_path)
 
-            # empty list for matching results
-            matched_files = []
+                for dir1 in glob.glob(source_path + "\\**\\*", recursive=True):  # loop som bruger glob til at rende alle stier igennem i source mappen
+                    if os.path.isdir(dir1):  # kontrollerer om stien er en mappe
+                        crop_folder = dir1.split(folder_name[-1], 1)[1]  # hiver stien efter mappenavnet for roden til source
+                        os.makedirs(backup_folder_path + crop_folder, exist_ok=True)  # opretter en mappe i backup mappen, magen til source
 
-            # iterate over the files in the first folder
-            for file_one in first_folder:
-                print(file_one)
-                if os.path.isfile(file_one):
-                    with open(file_one, "r") as f:
-                        file_one_text = f.read()
+                for file in glob.glob(source_path + "\\**\\*", recursive=True):  # endnu et loop som bruger glob til at rende alle stier igennem i source mappen
+                    if os.path.isfile(file):  # kontrollerer om stien er en fil
+                        crop_file = file.split(folder_name[-1], 1)[1]  # hiver stien efter mappenavnet for roden til source
+                        if os.path.isfile(latest_full + crop_file):  # hvis filen eksisterer i seneste full backup...
+                            no_changes = filecmp.cmp(file, latest_full + crop_file, shallow=True)  # sammenligner filer fra source og seneste full backup
+                            if no_changes == False:  # hvis filerne ikke er identiske...
+                                shutil.copy2(file, backup_folder_path + crop_file)  # kopierer filen fra source til backup mappen
+                        else:
+                            shutil.copy2(file, backup_folder_path + crop_file)  # kopierer filen fra source til backup mappen hvis den ikke findes i seneste full backup
 
-                # iterate over the files in the second folder
-                    for file_two in second_folder:
-                        if os.path.isfile(file_two):
-                            with open(file_two, "r") as f:
-                                file_two_text = f.read()
+                backup_dirs = []
+                for dir2 in glob.glob(backup_folder_path + "\\**\\*", recursive=True):  # loop som bruger glob til at rende alle stier igennem i backup mappen
+                    if os.path.isdir(dir2):  # kontrollerer om stien er en mappe
+                        backup_dirs.append(dir2)
+                for reverse_dir in backup_dirs[::-1]:
+                    if len(os.listdir(reverse_dir)) == 0:  # hvis backup mappen er tom...
+                        shutil.rmtree(reverse_dir)  # slet backup mappen
 
-                    # match the two file contents
-                    match = SequenceMatcher(None, file_one_text, file_two_text)
-                    if match.ratio() < 1.0:
-                        print(f"Changes found ({match.ratio()}): '{file_one}' | '{file_two}'")
-                        # here you have to decide if you rather want to remove files from the first or second folder
-                        matched_files.append(file_one)  # i delete files from the second folder
-
-            # remove duplicates from the resulted list
-            matched_files = list(set(matched_files))
-
-            # remove the files
-            for f in matched_files:
-                print("Copying " + f + " to " + new_folder_path)
-                file = ntpath.basename(f)
-                os.makedirs(new_folder_path, exist_ok=True)
-                shutil.copy2(f, new_folder_path + file)
-
-            log_data = [source_path, destination_path + folder_name[-1] + "_diff" + date_stamp + time_stamp, "differential", date_today + time_now]
-            with open('backup_log.csv', 'a', encoding='UTF8') as f:
-                writer = csv.writer(f)
-                writer.writerow(log_data)
-
-            print("Backup done!\n")
-
-            while (True):
-                return_main_menu = input("Return to main menu? (y/n): ")
-                if return_main_menu == "y":
-                    Clear_Console()
-                    break
-                elif return_main_menu == "n":
-                    exit()
+                if len(os.listdir(backup_folder_path)) == 0:  # hvis backup mappen er tom...
+                    shutil.rmtree(backup_folder_path)  # slet backup mappen
+                    print(colored("\nJob done. No files were backed up.\n", "green"))
                 else:
-                    print(colored("Invalid input - please try again...\n", "red"))
+                    print(colored("\nBackup done!\n", "green"))
 
-            break
+                log_data = [source_path, destination_path + folder_name[-1] + "_diff" + date_stamp + time_stamp, "differential", date_today + time_now]
+                with open('backup_log.csv', 'a', encoding='UTF8') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(log_data)
 
-        else:
-            print(colored("The path does not exist - please try again...\n", "red"))
+                while (True):
+                    return_main_menu = input("Return to main menu? (y/n): ")
+                    if return_main_menu == "y":
+                        Clear_Console()
+                        break
+                    elif return_main_menu == "n":
+                        Clear_Console()
+                        exit()
+                    else:
+                        print(colored("Invalid input - please try again...\n", "red"))
+                break
+            else:
+                print(colored("The path does not exist - please try again...\n", "red"))
+    else:
+        while (True):
+            return_main_menu = input(
+                "No Full Backups detected for the specified folder - do you wish to run a Full Backup instead? (y/n): ")
+            if return_main_menu == "y":
+                Clear_Console()
+                Full_Backup()
+                break
+            elif return_main_menu == "n":
+                Clear_Console()
+                exit()
+            else:
+                print(colored("Invalid input - please try again...\n", "red"))
 
-
-
-def Incremental_Backup():
-    print("Running Incremental Backup")
 
 
 def Clear_Console():
@@ -202,17 +194,18 @@ def Clear_Console():
 
 
 def Latest_Full():
+    global source_path
     get_dates = []
     with open('backup_log.csv') as csv_file:
         for data in csv.DictReader(csv_file):
-            if data['type'] == "full":
+            if data['type'] == "full" and data['src-path'] == source_path:
                 get_dates.append(data)
     latest_full_backup = max(get_dates, key=lambda x: x['date-time'])
     result = latest_full_backup['bck-path']
     return result
 
 
-# HOVEDMENU
+# START PROGRAM
 
 while(True):
     Main_Menu()
