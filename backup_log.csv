@@ -1,1 +1,3 @@
 src-path,bck-path,type,date-time
+c:\temp\test\src,c:\temp\test\dst\src_full_15_09_2022_12_08_28,full,15-09-2022_12:08:28
+c:\temp\test\src,c:\temp\test\dstsrc_diff_15_09_2022_12_09_40,differential,15-09-2022_12:09:40
