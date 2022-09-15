@@ -16,6 +16,7 @@ source_path = ""
 # DEFINERING AF FUNKTIONER
 
 def Main_Menu():
+    Clear_Console()
     print(colored("Simple Backup by CHDuelund v1.0a\n", "blue", attrs=["bold", "underline"]))
 
     print(colored("Choose function:", attrs=["underline"]))
