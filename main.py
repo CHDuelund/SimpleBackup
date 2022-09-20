@@ -176,8 +176,8 @@ def Differential_Backup():
                 print(colored("The path does not exist - please try again...\n", "red"))
     else:
         while (True):
-            return_main_menu = input(
-                "No Full Backups detected for the specified folder - do you wish to run a Full Backup instead? (y/n): ")
+            return_main_menu = input(colored(
+                "\nNo Full Backups detected for the specified folder - do you wish to run a Full Backup instead? (y/n): ", "red"))
             if return_main_menu == "y":
                 Clear_Console()
                 Full_Backup()
@@ -186,7 +186,7 @@ def Differential_Backup():
                 Clear_Console()
                 exit()
             else:
-                print(colored("Invalid input - please try again...\n", "red"))
+                print(colored("Invalid input - please try again...", "red"))
 
 
 
