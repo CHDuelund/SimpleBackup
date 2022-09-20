@@ -1,4 +1,4 @@
-# IMPORTERING AF PAKKER
+# IMPORTERING AF MODULER/PAKKER
 
 import os, shutil, re, glob, filecmp, csv
 from termcolor import colored
@@ -7,9 +7,9 @@ from datetime import date,datetime
 
 # GLOBALE VARIABLER
 
-get_today = date.today() # hent dato til variabel.
+get_today = date.today() # hent dato til variabel
 date_today = get_today.strftime("%d-%m-%Y")
-date_stamp = get_today.strftime("_%d_%m_%Y") # konverter dato til ønsket format.
+date_stamp = get_today.strftime("_%d_%m_%Y") # konverter dato til ønsket format
 source_path = ""
 
 
@@ -65,7 +65,7 @@ def Full_Backup():
             new_folder_path = destination_path + folder_name[-1] + "_full" + date_stamp + time_stamp
 
             shutil.copytree(source_path, new_folder_path)
-
+            # SKRIV TIL CSV-FIL
             log_data = [source_path, destination_path + folder_name[-1] + "_full" + date_stamp + time_stamp, "full", date_today + time_now]
             with open('backup_log.csv', 'a', encoding='UTF8') as f:
                 writer = csv.writer(f)
@@ -94,10 +94,10 @@ def Differential_Backup():
     print(colored("\nDifferential Backup\n", "blue", attrs=["bold", "underline"]))
 
     while (True):
-        global source_path
+        global source_path # global parameteren gør at man kan læse og skrive til en global variabel inde i sin funktion
         source_path = input("Specify the source path: ")
         folder_exists = os.path.exists(source_path)  # kontrollerer om den angivne sti findes.
-        folder_name = re.split(r'\\',source_path)  # deler variablen source_path op ved brug af regex med \ som "delimiter".
+        folder_name = re.split(r'\\',source_path)  # deler variablen source_path op ved brug af regex med \ som "delimiter"
         if folder_exists == True:
 
             break
@@ -108,24 +108,24 @@ def Differential_Backup():
     with open('backup_log.csv') as csv_file:
         for data in csv.DictReader(csv_file):
             if data['type'] == "full" and data['src-path'] == source_path:
-                full_backup_exists = 1
+                full_backup_exists = 1 # hvis der findes et entry som matcher ændres værdien til 1
                 break
 
-    if full_backup_exists == 1:
+    if full_backup_exists == 1: # hvis der findes et entry som indikerer at der er en full backup, køres koden
         while (True):
             destination_path = input("Specify the destination path: ")
-            folder_exists = os.path.exists(destination_path)  # kontrollerer om den angivne sti findes.
+            folder_exists = os.path.exists(destination_path)  # kontrollerer om den angivne sti findes
 
             if folder_exists == True:
-                get_time = datetime.now()  # hent tid til variabel.
-                time_stamp = get_time.strftime("_%H_%M_%S")  # konverter tid til ønsket format.
-                time_now = get_time.strftime("_%H:%M:%S")
+                get_time = datetime.now()  # hent tid til variabel
+                time_stamp = get_time.strftime("_%H_%M_%S")  # konverter tid til ønsket format
+                time_now = get_time.strftime("_%H:%M:%S")   # konverter tid til ønsket format
 
                 backup_folder_path = destination_path + "\\" + folder_name[-1] + "_diff" + date_stamp + time_stamp
 
-                latest_full = Latest_Full()
+                latest_full = Latest_Full() # Udlæser seneste full backup via funktionen, til variabel
 
-                os.mkdir(backup_folder_path)
+                os.mkdir(backup_folder_path) # Opretter en mappe til at lagre backuppen
 
                 for dir1 in glob.glob(source_path + "\\**\\*", recursive=True):  # loop som bruger glob til at rende alle stier igennem i source mappen
                     if os.path.isdir(dir1):  # kontrollerer om stien er en mappe
@@ -155,7 +155,7 @@ def Differential_Backup():
                     print(colored("\nJob done. No files were backed up.\n", "green"))
                 else:
                     print(colored("\nBackup done!\n", "green"))
-
+                # SKRIV TIL CSV-FIL
                 log_data = [source_path, destination_path + folder_name[-1] + "_diff" + date_stamp + time_stamp, "differential", date_today + time_now]
                 with open('backup_log.csv', 'a', encoding='UTF8') as f:
                     writer = csv.writer(f)
@@ -191,10 +191,11 @@ def Differential_Backup():
 
 
 def Clear_Console():
-    os.system('cls' if os.name == 'nt' else 'clear')
+    os.system('cls' if os.name == 'nt' else 'clear') # if statement som baseret på hvilket OS man har vælger den rigtige kommando til at rydde konsollen.
 
 
 def Latest_Full():
+    # Funktionen hiver registreringer ud af CSV filen som matcher source path og er full. Til sidst finder den den seneste registrering
     global source_path
     get_dates = []
     with open('backup_log.csv') as csv_file:
