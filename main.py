@@ -195,7 +195,7 @@ def Clear_Console():
 
 
 def Latest_Full():
-    # Funktionen hiver registreringer ud af CSV filen som matcher source path og er full. Til sidst finder den den seneste registrering
+    # Funktionen hiver registreringer ud af CSV filen som matcher source path og er full. Til sidst findes den seneste registrering
     global source_path
     get_dates = []
     with open('backup_log.csv') as csv_file:
